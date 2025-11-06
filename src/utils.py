@@ -1,7 +1,7 @@
 from config import CHILLI_HUB_CHANNELS_ID
 import platform
 
-if platform.system() == "Windows":
+if platform.system() == "Android":
     import ctypes
 
 def check_channel(channel_id: str):
