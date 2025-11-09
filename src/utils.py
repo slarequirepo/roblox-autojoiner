@@ -1,67 +1,39 @@
-from config import CHILLI_HUB_CHANNELS_ID
-import platform
+import discord
+from discord.ext import commands
 
-if platform.system() == "Android":
-    import ctypes
+bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 
-def check_channel(channel_id: str):
-    for tier, ids in CHILLI_HUB_CHANNELS_ID.items():
-        if channel_id in ids:
-            return True, tier
-    return False, None
+@bot.event
+async def on_ready():
+    print(f"✅ {bot.user} está online!")
 
+class JoinButtonView(discord.ui.View):
+    def __init__(self, script):
+        super().__init__()
+        self.script = script
 
-def parse_money(value: str) -> float:
-    value = value.strip("*$ /s")
-    if value.endswith("K"):
-        return round(float(value[:-1]) / 1000, 3)
-    elif value.endswith("M"):
-        return round(float(value[:-1]), 3)
-    elif value.endswith("B"):
-        return round(float(value[:-1]) * 1000, 3)
-    else:
-        return 0.0
+    @discord.ui.button(label="Entrar no servidor 🎮", style=discord.ButtonStyle.green)
+    async def join_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_message(
+            f"💻 Copie e cole esse script pra entrar:\n```lua\n{self.script}\n```",
+            ephemeral=True
+        )
 
+@bot.command()
+async def servidor(ctx):
+    # Exemplo de uso — normalmente tu pegaria isso de `extract_server_info(event)`
+    server_info = {
+        "name": "Servidor ChilliHub",
+        "script": 'game:GetService("TeleportService"):TeleportToPlaceInstance(1234567890, "jobid_aqui")'
+    }
 
-def extract_server_info(event: dict):
-    result = {"name": None, "money": None, "script": None, "job_id": None, "players": None}
+    embed = discord.Embed(
+        title=f"🌐 {server_info['name']}",
+        description="Clique abaixo pra entrar no servidor!",
+        color=discord.Color.blurple()
+    )
 
-    try:
-        embeds = event["d"].get("embeds", [])
-        if not embeds:
-            return result
+    view = JoinButtonView(server_info['script'])
+    await ctx.send(embed=embed, view=view)
 
-        fields = embeds[0].get("fields", [])
-        for field in fields:
-            name = field.get("name", "").strip()
-            value = field.get("value", "").strip()
-
-            if name.startswith("🏷️ Name"):
-                result["name"] = value.strip("*")
-
-            elif name.startswith("💰 Money per sec"):
-                result["money"] = parse_money(value.strip("*"))
-
-            elif name.startswith("📜 Join Script (PC)"):
-                result["script"] = value.strip("`")
-
-            elif name.startswith("Job ID (PC)"):
-                result["job_id"] = value.strip("`")
-
-            elif name.startswith("👥 Players"):
-                players_str = value.strip("*")
-                current, _ = players_str.split("/")
-                result["players"] = current
-
-    except Exception as e:
-        #print(f"Error parsing message: {e}")
-        pass
-
-    return result
-
-def set_console_title(title: str):
-    if platform.system() == "Windows":
-        ctypes.windll.kernel32.SetConsoleTitleW(title)
-    return
-
-# https://github.com/notasnek/roblox-autojoiner
+bot.run("MTQzNjg0NzgyNzU3NjY4ODg0MQ.GdZAdP.tyHznCkmcWD5QKjjQk6mWtT-cRQuWrvjpuQHSM")
