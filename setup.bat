@@ -39,7 +39,8 @@ echo.
 echo [EN] Now open config.py in Notepad and configure it for your needs.
 echo [RU] Teper' otkroyte config.py cherez bloknot i nastrojte ego pod sebya.
 echo.
-echo [EN/RU] GitHub: https://github.com/notasnek/roblox-autojoiner
+echo [EN/RU] GitHub: https://github.com/slarequirepo/roblox-autojoiner
 echo.
 
 pause
+
